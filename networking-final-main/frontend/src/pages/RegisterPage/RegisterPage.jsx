@@ -12,12 +12,8 @@ import {
 } from './registerUtils';
 import Webcam from 'react-webcam';
 
-/**
- * RegisterPage component handles the user registration process across multiple steps.
- * It collects user information, including skills and recovery questions, and optionally captures a photo via webcam.
- */
 const RegisterPage = () => {
-  const [step, setStep] = useState(1); // State to manage the current step of the registration process.
+  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     username: '',
     first_name: '',
@@ -31,19 +27,16 @@ const RegisterPage = () => {
     skills: [],
     recovery_q1: { question: '', answer: '' },
     recovery_q2: { question: '', answer: '' }
-  }); // State to manage the registration form data.
-  const [skill, setSkill] = useState(''); // State to manage the skill input field.
-  const [error, setError] = useState(''); // State to handle and display errors.
-  const [success, setSuccess] = useState(''); // State to handle and display success messages.
-  const [usingWebcam, setUsingWebcam] = useState(false); // State to toggle between webcam capture and file upload for photos.
-  const webcamRef = useRef(null); // Reference to the webcam component.
-  const navigate = useNavigate(); // Hook to navigate between routes.
-  const { setCurrentUser } = useUser(); // Hook to set the current user in context after registration.
+  });
+  const [skill, setSkill] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [usingWebcam, setUsingWebcam] = useState(false);
+  const webcamRef = useRef(null);
+  const navigate = useNavigate();
+  const { setCurrentUser } = useUser();
 
-  /**
-   * Handle image upload from file input.
-   * @param {Object} e - The event object from the file input.
-   */
+  // Handle image upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
@@ -55,13 +48,11 @@ const RegisterPage = () => {
     }
   };
 
-  /**
-   * Handle image capture from the webcam.
-   */
+  // Handle capture from webcam
   const handleCapture = () => {
     const imageSrc = webcamRef.current.getScreenshot();
     setFormData({ ...formData, photo: imageSrc });
-    setUsingWebcam(false); // Switch back to file upload after capturing the image.
+    setUsingWebcam(false); // Switch back to file upload
   };
 
   return (
@@ -70,8 +61,6 @@ const RegisterPage = () => {
         <h1 className="register-title">Register</h1>
         {error && <p className="register-error">{error}</p>}
         {success && <p className="register-success">{success}</p>}
-
-        {/* Step 1: Basic Information */}
         {step === 1 && (
           <form>
             <div className="register-field">
@@ -195,8 +184,6 @@ const RegisterPage = () => {
             </button>
           </form>
         )}
-
-        {/* Step 2: Add Skills */}
         {step === 2 && (
           <div>
             <h2 className="register-title">Your Skills</h2>
@@ -243,8 +230,6 @@ const RegisterPage = () => {
             </button>
           </div>
         )}
-
-        {/* Step 3: Set Recovery Questions */}
         {step === 3 && (
           <div>
             <h2 className="register-title">Recovery Questions</h2>
