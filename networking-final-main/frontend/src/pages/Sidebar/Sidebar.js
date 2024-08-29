@@ -2,11 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useUser } from '../UserContext';
 
+/**
+ * Sidebar component provides navigation and theme toggling functionality.
+ * It displays different navigation links and allows the user to switch between light and dark modes.
+ * The sidebar can also be toggled open or closed on smaller screens.
+ */
 const Sidebar = ({ isOpen, toggleSidebar }) => {
-    const { currentUser, setCurrentUser } = useUser();
-    const navigate = useNavigate();
-    const location = useLocation();
-    
+    const { currentUser, setCurrentUser } = useUser(); // Access current user and function to set current user from context.
+    const navigate = useNavigate(); // Hook to navigate between routes.
+    const location = useLocation(); // Hook to access the current route.
+
     // Dark mode state
     const [darkMode, setDarkMode] = useState(false);
 
@@ -19,7 +24,9 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         }
     }, []);
 
-    // Toggle dark mode and update localStorage
+    /**
+     * Toggles the dark mode state and updates localStorage with the current theme.
+     */
     const toggleDarkMode = () => {
         const newTheme = darkMode ? 'light' : 'dark';
         setDarkMode(!darkMode);
@@ -27,30 +34,37 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         localStorage.setItem('theme', newTheme);
     };
 
+    /**
+     * Handles user logout by clearing the current user and navigating to the login page.
+     */
     const handleLogout = () => {
         setCurrentUser(null);
         navigate('/login');
     };
 
+    // Return null if no current user is found (user is not logged in).
     if (!currentUser) {
         return null;
     }
 
     return (
         <>
-            {/* Overlay */}
+            {/* Overlay for sidebar when open on smaller screens */}
             <div
                 className={`fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden transition-opacity duration-200 ease-in-out ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                 onClick={toggleSidebar}
             />
 
-            {/* Sidebar on the left */}
+            {/* Sidebar component */}
             <div
                 className={`fixed lg:static inset-y-0 left-0 transform lg:transform-none transition-transform duration-200 ease-in-out bg-gray-800 text-white w-64 p-6 flex flex-col z-50 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >
+                {/* Logo Section */}
                 <div className="mb-6 flex justify-between items-center">
                     <img src="/logo.png" alt="Logo" className="w-full h-auto" />
                 </div>
+
+                {/* Navigation Links */}
                 <nav className="flex-grow">
                     <Link
                         to="/home"
@@ -94,17 +108,18 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                     >
                         Logout
                     </button>
-                    <button
-  onClick={toggleDarkMode}
-  className={`mt-auto px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-300 ${
-    darkMode
-      ? 'bg-gray-800 text-white hover:bg-gray-700'
-      : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-  }`}
->
-  {darkMode ? 'Light Mode' : 'Dark Mode'}
-</button>
 
+                    {/* Dark Mode Toggle */}
+                    <button
+                        onClick={toggleDarkMode}
+                        className={`mt-auto px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-300 ${
+                            darkMode
+                                ? 'bg-gray-800 text-white hover:bg-gray-700'
+                                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                        }`}
+                    >
+                        {darkMode ? 'Light Mode' : 'Dark Mode'}
+                    </button>
                 </nav>
             </div>
         </>

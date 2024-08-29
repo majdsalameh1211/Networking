@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ForgetPasswordPage.css';
-import { fetchSecurityQuestions, verifyAnswers } from './forgotPasswordUtils'
+import { fetchSecurityQuestions, verifyAnswers } from './forgotPasswordUtils';
 
 const ForgotPasswordPage = () => {
   const [step, setStep] = useState(1);
@@ -10,7 +10,8 @@ const ForgotPasswordPage = () => {
   const [error, setError] = useState('');
   const [questions, setQuestions] = useState({});
   const [answers, setAnswers] = useState({ answer1: '', answer2: '' });
-  const [countdown, setCountdown] = useState(10);
+  const [password, setPassword] = useState(''); // State to store the password
+  const [countdown, setCountdown] = useState(10); // Countdown timer for redirecting
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,7 +20,7 @@ const ForgotPasswordPage = () => {
         setCountdown((prevCountdown) => {
           if (prevCountdown === 1) {
             clearInterval(timer);
-            navigate('/login');
+            navigate('/login'); // Redirect to login page after countdown.
           }
           return prevCountdown - 1;
         });
@@ -51,12 +52,15 @@ const ForgotPasswordPage = () => {
   const handleSubmitAnswers = async (e) => {
     e.preventDefault();
     setError('');
-    const { correct, error } = await verifyAnswers(email, answers);
+    const { correct, password, error } = await verifyAnswers(email, answers);
+    console.log("correct :"+correct + "password :"+password +"error: "+error);
     if (correct) {
-      setMessage('Password has been sent to your email.');
-      setStep(3);
+      setPassword(password); // Store the password
+      console.log(password);
+      setMessage('Password has been retrieved.');
+      setStep(3); // Proceed to the final step
     } else {
-      setError(error);
+      setError(error); // Show error message
     }
   };
 
@@ -118,9 +122,12 @@ const ForgotPasswordPage = () => {
         )}
         {step === 3 && (
           <>
-            <h1 className="forgot-password-title">Password Sent</h1>
+            <h1 className="forgot-password-title">Password Retrieved</h1>
+            <p className="forgot-password-password">
+              Your password is: <strong>{password}</strong>
+            </p>
             <p className="forgot-password-redirect">
-              Your password has been sent to your email. Redirecting to login page in {countdown} seconds...
+              Redirecting to login page in {countdown} seconds...
             </p>
           </>
         )}

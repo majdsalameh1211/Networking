@@ -1,5 +1,10 @@
-import axios from '../../api/axios';
+import axios from '../../../api/axios';
 
+/**
+ * Fetches security questions based on the provided email.
+ * @param {string} email - The email address of the user.
+ * @returns {Promise<Object>} - A promise that resolves with an object containing the security questions or an error.
+ */
 export const fetchSecurityQuestions = async (email) => {
   try {
     const response = await axios.post('/forgot-password', { email });
@@ -13,6 +18,12 @@ export const fetchSecurityQuestions = async (email) => {
   }
 };
 
+/**
+ * Verifies the answers to the security questions.
+ * @param {string} email - The email address of the user.
+ * @param {Object} answers - The user's answers to the security questions.
+ * @returns {Promise<Object>} - A promise that resolves with an object indicating if the answers are correct or an error.
+ */
 export const verifyAnswers = async (email, answers) => {
   try {
     const response = await axios.post('/verify-answers', { email, answers });

@@ -6,29 +6,33 @@ import {
     removeLike,
     addComment
 } from './homepageutilities.jsx';
-
-
 import CommentsSidebar from '../CommentSidebar/CommentsSidebar.jsx';
 import { useUser } from '../UserContext.jsx';
 import axios from '../../api/axios.jsx';
 
+/**
+ * HomePage component displays a user's professional network feed where they can view, like, comment on posts,
+ * and add new posts. It also supports dark mode and infinite scrolling to load more posts.
+ */
 function HomePage() {
-    const { currentUser } = useUser();
-    const [posts, setPosts] = useState([]);
-    const [postContent, setPostContent] = useState('');
-    const [showSidebar, setShowSidebar] = useState(false);
-    const [sidebarContent, setSidebarContent] = useState([]);
-    const [sidebarTitle, setSidebarTitle] = useState('');
-    const [message, setMessage] = useState('');
-    const [darkMode, setDarkMode] = useState(false);
-    const [commentContents, setCommentContents] = useState({});
-    const [likedPosts, setLikedPosts] = useState({});
-    const [skip, setSkip] = useState(0); // Track number of posts already loaded
-    const [hasMorePosts, setHasMorePosts] = useState(true); // Track if there are more posts to load
+    const { currentUser } = useUser(); // Retrieve the current user from the user context.
+    const [posts, setPosts] = useState([]); // State to store the posts displayed on the homepage.
+    const [postContent, setPostContent] = useState(''); // State to manage the content of the new post input field.
+    const [showSidebar, setShowSidebar] = useState(false); // State to control the visibility of the comments/likes sidebar.
+    const [sidebarContent, setSidebarContent] = useState([]); // State to store the content to be displayed in the sidebar.
+    const [sidebarTitle, setSidebarTitle] = useState(''); // State to manage the title of the sidebar (e.g., "Comments" or "Likes").
+    const [message, setMessage] = useState(''); // State to display success or error messages.
+    const [darkMode, setDarkMode] = useState(false); // State to manage dark mode theme.
+    const [commentContents, setCommentContents] = useState({}); // State to manage the content of comment input fields for each post.
+    const [likedPosts, setLikedPosts] = useState({}); // State to track which posts have been liked by the current user.
+    const [skip, setSkip] = useState(0); // Track number of posts already loaded.
+    const [hasMorePosts, setHasMorePosts] = useState(true); // Track if there are more posts to load.
 
-    const limit = 5; // Number of posts to fetch per request
+    const limit = 5; // Number of posts to fetch per request.
 
-    // Load theme from localStorage on mount
+    /**
+     * Load the theme (dark mode or light mode) from localStorage on component mount.
+     */
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
@@ -37,11 +41,16 @@ function HomePage() {
         }
     }, []);
 
-    // Fetch data on component mount
+    /**
+     * Fetch posts data from the server when the component mounts or when the current user changes.
+     */
     useEffect(() => {
         fetchPosts();
     }, [currentUser]);
 
+    /**
+     * Fetch posts from the server and enrich them with comments and likes data.
+     */
     const fetchPosts = async () => {
         if (!hasMorePosts) return;
 
@@ -77,15 +86,20 @@ function HomePage() {
         }
     };
 
-    // Add a new post
+    /**
+     * Add a new post to the feed.
+     */
     const addPost = async () => {
         const success = await addPostUtility(currentUser, postContent, posts, setPosts, setMessage);
         if (success) {
-            setPostContent('');
+            setPostContent(''); // Clear the post content input field after successful post.
         }
     };
 
-    // Handle like/unlike action
+    /**
+     * Toggle the like status of a post.
+     * @param {string} postId - The ID of the post to like/unlike.
+     */
     const handleLikeToggle = async (postId) => {
         if (likedPosts[postId]) {
             await removeLike(postId, currentUser, posts, setPosts);
@@ -96,27 +110,40 @@ function HomePage() {
         }
     };
 
-    // Add a comment to a post
+    /**
+     * Add a comment to a post.
+     * @param {string} postId - The ID of the post to comment on.
+     */
     const handleAddComment = async (postId) => {
         if (commentContents[postId]?.trim()) {
             await addComment(postId, commentContents[postId], currentUser, posts, setPosts);
-            setCommentContents(prev => ({ ...prev, [postId]: '' }));
+            setCommentContents(prev => ({ ...prev, [postId]: '' })); // Clear the comment input field after successful comment.
         }
     };
 
-    // Handle comment content change
+    /**
+     * Handle changes in the comment input field for a specific post.
+     * @param {string} postId - The ID of the post being commented on.
+     * @param {string} content - The content of the comment.
+     */
     const handleCommentChange = (postId, content) => {
         setCommentContents(prev => ({ ...prev, [postId]: content }));
     };
 
-    // Show comments sidebar
+    /**
+     * Show the comments sidebar with the comments of a specific post.
+     * @param {Array} comments - The list of comments to display in the sidebar.
+     */
     const showComments = (comments) => {
         setSidebarContent(comments);
         setSidebarTitle('Comments');
         setShowSidebar(true);
     };
 
-    // Show likes sidebar
+    /**
+     * Show the likes sidebar with the likes of a specific post.
+     * @param {Array} likes - The list of likes to display in the sidebar.
+     */
     const showLikes = (likes) => {
         setSidebarContent(likes);
         setSidebarTitle('Likes');
@@ -126,7 +153,6 @@ function HomePage() {
     return (
         <div className={`container ${darkMode ? 'dark-mode' : 'light-mode'}`}>
             <h1 className="title">Welcome to Your Professional Network</h1>
-
 
             <div>
                 {message && <p>{message}</p>}

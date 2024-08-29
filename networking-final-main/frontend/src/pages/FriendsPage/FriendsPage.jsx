@@ -10,15 +10,23 @@ import {
   searchUsers,
 } from './friendsUtils';
 
+/**
+ * FriendsPage component allows users to manage their friends and followers.
+ * It provides functionality to search users, follow/unfollow friends, and remove followers.
+ */
 function FriendsPage() {
-  const { currentUser } = useUser();
-  const [friends, setFriends] = useState([]);
-  const [followers, setFollowers] = useState([]);
-  const [searchResults, setSearchResults] = useState([]);
-  const [searchUsername, setSearchUsername] = useState('');
-  const [message, setMessage] = useState('');
-  const navigate = useNavigate();
+  const { currentUser } = useUser(); // Get the current user context.
+  const [friends, setFriends] = useState([]); // State to store the list of friends.
+  const [followers, setFollowers] = useState([]); // State to store the list of followers.
+  const [searchResults, setSearchResults] = useState([]); // State to store search results.
+  const [searchUsername, setSearchUsername] = useState(''); // State to store the search input.
+  const [message, setMessage] = useState(''); // State to display success or error messages.
+  const navigate = useNavigate(); // Hook to navigate between routes.
 
+  /**
+   * useEffect hook to initialize friends and followers lists when the component mounts
+   * or when the currentUser changes.
+   */
   useEffect(() => {
     if (!currentUser) return;
 
@@ -30,42 +38,61 @@ function FriendsPage() {
     initializeFriendsAndFollowers();
   }, [currentUser]);
 
+  /**
+   * Handle the removal of a friend.
+   * @param {string} friendId - The ID of the friend to be removed.
+   */
   const handleRemoveFollow = async (friendId) => {
     if (await removeFollow(currentUser, friendId)) {
       setMessage('Friend removed successfully');
-      setFriends(await fetchFriends(currentUser.user_id));
+      setFriends(await fetchFriends(currentUser.user_id)); // Refresh the friends list.
     } else {
       setMessage('Failed to remove friend');
     }
   };
 
+  /**
+   * Handle the removal of a follower.
+   * @param {string} followerId - The ID of the follower to be removed.
+   */
   const handleRemoveFollower = async (followerId) => {
     if (await removeFollower(currentUser, followerId)) {
       setMessage('Follower removed successfully');
-      setFollowers(await fetchFollowers(currentUser.user_id));
+      setFollowers(await fetchFollowers(currentUser.user_id)); // Refresh the followers list.
     } else {
       setMessage('Failed to remove follower');
     }
   };
 
+  /**
+   * Handle the action of following a user.
+   * @param {string} userId - The ID of the user to be followed.
+   */
   const handleFollowUser = async (userId) => {
     if (await followUser(currentUser, userId)) {
       setMessage('Friend added successfully');
-      setFriends(await fetchFriends(currentUser.user_id));
+      setFriends(await fetchFriends(currentUser.user_id)); // Refresh both friends and followers lists.
       setFollowers(await fetchFollowers(currentUser.user_id));
     }
   };
 
+  /**
+   * Handle the search action to find users by username.
+   */
   const handleSearchUsers = async () => {
-    setSearchResults(await searchUsers(searchUsername));
+    setSearchResults(await searchUsers(searchUsername)); // Update the search results state.
   };
 
+  /**
+   * Navigate to the profile page of a specific user.
+   * @param {string} userId - The ID of the user whose profile is to be visited.
+   */
   const visitProfile = (userId) => {
     navigate(`/profile/${userId}`);
   };
 
   if (!currentUser) {
-    return <div>Loading...</div>; // Or a loading indicator
+    return <div>Loading...</div>; // Display a loading indicator if currentUser is not available.
   }
 
   return (

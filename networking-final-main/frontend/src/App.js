@@ -7,7 +7,7 @@ import ProfilePage from './pages/ProfilePage/ProfilePage.jsx';
 import FriendsPage from './pages/FriendsPage/FriendsPage.jsx';
 import NotificationsPage from './pages/NotificationsPage/NotificationsPage.jsx';
 import SettingsPage from './pages/SettingsPage/SettingsPage.jsx';
-import ForgotPasswordPage from './pages/ForgetPasswordPage/ForgotPasswordPage.jsx';
+import ForgotPasswordPage from './pages/ForgetPassword.jsx';
 import MessagingPage from './pages/messages/MessagingPage.jsx';
 import Sidebar from './pages/Sidebar/Sidebar.js';
 import { UserProvider } from './pages/UserContext';

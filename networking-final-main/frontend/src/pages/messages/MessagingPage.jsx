@@ -13,13 +13,17 @@ import {
 } from './MessageUtilities';
 import './MessagingPage.css';
 
+/**
+ * MessagingPage component allows users to search for friends, start chats, and send messages.
+ * It uses WebSocket for real-time communication and maintains chat histories.
+ */
 const MessagingPage = () => {
-  const { currentUser } = useUser();
-  const [friends, setFriends] = useState([]);
-  const [searchResults, setSearchResults] = useState([]);
-  const [searchUsername, setSearchUsername] = useState('');
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [chatHistories, setChatHistories] = useState({});  // Ensure chatHistories is initialized as an empty object
+  const { currentUser } = useUser(); // Retrieve the current user from context.
+  const [friends, setFriends] = useState([]); // State to store the list of friends.
+  const [searchResults, setSearchResults] = useState([]); // State to store the search results.
+  const [searchUsername, setSearchUsername] = useState(''); // State to manage the search input field.
+  const [selectedUser, setSelectedUser] = useState(null); // State to store the currently selected user for chat.
+  const [chatHistories, setChatHistories] = useState({});  // State to store chat histories.
 
   const { sendMessage, readyState } = useWebSocket(
     selectedUser ? `wss://chat-server-networking-197a435521f1.herokuapp.com/` : null,
@@ -37,14 +41,18 @@ const MessagingPage = () => {
     }
   );
 
-
-
+  /**
+   * Fetches the current user's friends when the component mounts or when the current user changes.
+   */
   useEffect(() => {
     if (currentUser) {
       fetchFriends(currentUser.user_id, setFriends);
     }
   }, [currentUser]);
 
+  /**
+   * Map WebSocket ready state to a human-readable connection status.
+   */
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
     [ReadyState.OPEN]: 'Open',
@@ -54,7 +62,7 @@ const MessagingPage = () => {
   }[readyState];
 
   if (!currentUser) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>; // Display a loading message if the current user is not yet loaded.
   }
 
   return (
