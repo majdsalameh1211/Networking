@@ -15,6 +15,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
   credentials: true // Allow cookies and other credentials
 }));
+app.options('*', cors());
+
 
 app.use(bodyParser.json());
 // Database connection
