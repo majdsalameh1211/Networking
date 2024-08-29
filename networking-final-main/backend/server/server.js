@@ -10,7 +10,7 @@ const port = 3005; // Define the port here
 // Middleware
 app.use(bodyParser.json());
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://web-final-m-m.vercel.app', 'https://web-final-m-m-2.vercel.app'],
+  origin: ['http://localhost:3000', 'https://web-final-m-m.vercel.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
