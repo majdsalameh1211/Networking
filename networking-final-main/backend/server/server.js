@@ -25,164 +25,164 @@ app.use(bodyParser.json());
 // Database connection
 let db;
 connectToDb((err) => {
-    if (!err) {
-        db = getDb();
-        app.listen(port, () => {
-            console.log(`App listening on port ${port}`);
-        });
-    } else {
-        console.error('Failed to connect to the database');
-    }
+  if (!err) {
+    db = getDb();
+    app.listen(port, () => {
+      console.log(`App listening on port ${port}`);
+    });
+  } else {
+    console.error('Failed to connect to the database');
+  }
 });
 
 // User registration endpoint
 app.post('/register', async (req, res) => {
-    console.log('Request received at /register');
-    console.log('Request body:', req.body);
+  console.log('Request received at /register');
+  console.log('Request body:', req.body);
 
-    const { username, first_name, last_name, gender, email, password, phone_number, education, photo, skills, recovery_q1, recovery_q2 } = req.body;
+  const { username, first_name, last_name, gender, email, password, phone_number, education, photo, skills, recovery_q1, recovery_q2 } = req.body;
 
-    try {
-        // Create user object
-        const newUser = {
-            user_name: username,
-            first_name,
-            last_name,
-            gender,
-            email,
-            password,
-            phone_number,
-            education,
-            photo
-        };
+  try {
+    // Create user object
+    const newUser = {
+      user_name: username,
+      first_name,
+      last_name,
+      gender,
+      email,
+      password,
+      phone_number,
+      education,
+      photo
+    };
 
-        // Insert new user into users collection
-        const result = await db.collection('users').insertOne(newUser);
+    // Insert new user into users collection
+    const result = await db.collection('users').insertOne(newUser);
 
-        if (result.acknowledged && result.insertedId) {
-            const userId = result.insertedId;
+    if (result.acknowledged && result.insertedId) {
+      const userId = result.insertedId;
 
-            // Insert skills into skills collection
-            const skillsData = skills.map(skill => ({ user_id: userId, skill }));
-            await db.collection('skills').insertMany(skillsData);
+      // Insert skills into skills collection
+      const skillsData = skills.map(skill => ({ user_id: userId, skill }));
+      await db.collection('skills').insertMany(skillsData);
 
-            // Insert recovery questions into recovery_questions collection
-            const recoveryData = {
-                user_id: userId,
-                question1: recovery_q1.question,
-                answer1: recovery_q1.answer,
-                question2: recovery_q2.question,
-                answer2: recovery_q2.answer
-            };
-            await db.collection('recovery_questions').insertOne(recoveryData);
+      // Insert recovery questions into recovery_questions collection
+      const recoveryData = {
+        user_id: userId,
+        question1: recovery_q1.question,
+        answer1: recovery_q1.answer,
+        question2: recovery_q2.question,
+        answer2: recovery_q2.answer
+      };
+      await db.collection('recovery_questions').insertOne(recoveryData);
 
-            // Return the new user object with just the user fields
-            res.json({ message: 'Registration successful', user: newUser });
-        } else {
-            console.error('Failed to insert user into the database');
-            res.status(500).send('Error registering user');
-        }
-    } catch (error) {
-        console.error('Error during registration:', error);
-        res.status(500).send('Error registering user');
+      // Return the new user object with just the user fields
+      res.json({ message: 'Registration successful', user: newUser });
+    } else {
+      console.error('Failed to insert user into the database');
+      res.status(500).send('Error registering user');
     }
+  } catch (error) {
+    console.error('Error during registration:', error);
+    res.status(500).send('Error registering user');
+  }
 });
 
 // Verify user function for login
 const verifyUser = async (email, password, callback) => {
-    try {
-        const user = await db.collection('users').findOne({ email });
+  try {
+    const user = await db.collection('users').findOne({ email });
 
-        if (!user) {
-            console.log('No user found with this email:', email);
-            return callback(null, { message: 'Wrong email or password.' });
-        }
-        if (password !== user.password) {
-            return callback(null, { message: 'Wrong email or password.' });
-        } else {
-            const userObject = {
-                user_id: user._id,
-                user_name: user.user_name,
-                first_name: user.first_name,
-                last_name: user.last_name,
-                gender: user.gender,
-                email: user.email,
-                password: user.password,
-                phone_number: user.phone_number,
-                education: user.education,
-                photo: user.photo
-            };
-
-            callback(null, userObject);
-        }
-    } catch (err) {
-        console.error('Database query error:', err);
-        return callback(err);
+    if (!user) {
+      console.log('No user found with this email:', email);
+      return callback(null, { message: 'Wrong email or password.' });
     }
+    if (password !== user.password) {
+      return callback(null, { message: 'Wrong email or password.' });
+    } else {
+      const userObject = {
+        user_id: user._id,
+        user_name: user.user_name,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        gender: user.gender,
+        email: user.email,
+        password: user.password,
+        phone_number: user.phone_number,
+        education: user.education,
+        photo: user.photo
+      };
+
+      callback(null, userObject);
+    }
+  } catch (err) {
+    console.error('Database query error:', err);
+    return callback(err);
+  }
 };
 
 // Add login endpoint
 app.post('/login', (req, res) => {
-    const { email, password } = req.body;
-    console.log("server side :");
-    console.log(email, password);
-    verifyUser(email, password, (err, result) => {
-        console.log("err:", err);
-        console.log(result);
-        if (err) {
-            return res.status(500).send('An error occurred. Please try again.');
-        }
-        if (result.message) {
-            return res.status(401).send(result.message);
-        }
+  const { email, password } = req.body;
+  console.log("server side :");
+  console.log(email, password);
+  verifyUser(email, password, (err, result) => {
+    console.log("err:", err);
+    console.log(result);
+    if (err) {
+      return res.status(500).send('An error occurred. Please try again.');
+    }
+    if (result.message) {
+      return res.status(401).send(result.message);
+    }
 
-        res.json({ message: 'Login successful', user: result });
-    });
+    res.json({ message: 'Login successful', user: result });
+  });
 });
 
 app.post('/update-photo', async (req, res) => {
   const { user_id, photo } = req.body;
 
   try {
-      const updateObject = { photo };
+    const updateObject = { photo };
 
-      const result = await db.collection('users').updateOne(
-          { _id: new ObjectId(user_id) },
-          { $set: updateObject }
-      );
+    const result = await db.collection('users').updateOne(
+      { _id: new ObjectId(user_id) },
+      { $set: updateObject }
+    );
 
-      if (result.modifiedCount === 1) {
-          res.json({ success: true, message: 'User photo updated successfully', photo });
-      } else {
-          res.json({ success: false, message: 'User not found' });
-      }
+    if (result.modifiedCount === 1) {
+      res.json({ success: true, message: 'User photo updated successfully', photo });
+    } else {
+      res.json({ success: false, message: 'User not found' });
+    }
   } catch (err) {
-      console.error('Error updating user photo:', err);
-      res.status(500).json({ success: false, message: 'Error updating user photo' });
+    console.error('Error updating user photo:', err);
+    res.status(500).json({ success: false, message: 'Error updating user photo' });
   }
 });
 // Endpoint to handle forgot password
 app.post('/forgot-password', async (req, res) => {
-    const { email } = req.body;
+  const { email } = req.body;
 
-    try {
-        const user = await db.collection('users').findOne({ email });
+  try {
+    const user = await db.collection('users').findOne({ email });
 
-        if (!user) {
-            return res.status(404).send('Email not found');
-        }
-
-        const recoveryData = await db.collection('recovery_questions').findOne({ user_id: user._id });
-
-        if (!recoveryData) {
-            return res.status(404).send('Recovery questions not found');
-        }
-
-        res.json({ questions: { question1: recoveryData.question1, question2: recoveryData.question2 } });
-    } catch (err) {
-        console.error('Error fetching user or recovery questions:', err);
-        return res.status(500).send('Error fetching user or recovery questions');
+    if (!user) {
+      return res.status(404).send('Email not found');
     }
+
+    const recoveryData = await db.collection('recovery_questions').findOne({ user_id: user._id });
+
+    if (!recoveryData) {
+      return res.status(404).send('Recovery questions not found');
+    }
+
+    res.json({ questions: { question1: recoveryData.question1, question2: recoveryData.question2 } });
+  } catch (err) {
+    console.error('Error fetching user or recovery questions:', err);
+    return res.status(500).send('Error fetching user or recovery questions');
+  }
 });
 
 // Endpoint to verify recovery answers
@@ -308,6 +308,9 @@ app.get('/fetch-data', async (req, res) => {
     // Fetch the user's friends' IDs as strings
     const friends = await db.collection('friends').find({ user_id: new ObjectId(userId) }).toArray();
     const friendIds = friends.map(friend => friend.friend_id.toString()); // Convert ObjectId to string
+
+    // Add the user's own ID to the array of friend IDs
+    friendIds.push(userId);
 
     if (friendIds.length === 0) {
       // No friends, return empty data
@@ -706,52 +709,52 @@ app.post('/delete-comment', async (req, res) => {
   const { post_id, comment_id } = req.body;
 
   try {
-      console.log('Request received to delete comment:', { post_id, comment_id });
+    console.log('Request received to delete comment:', { post_id, comment_id });
 
-      /*
-      if (!ObjectId.isValid(post_id) || !ObjectId.isValid(comment_id)) {
-          console.error('Invalid post ID or comment ID');
-          return res.status(400).send('Invalid post ID or comment ID');
-      }
-     */
-      //const postObjectId = new ObjectId(post_id);
-      const commentObjectId = new ObjectId(comment_id);
-      
-      const comment = await db.collection('comments').findOne({ _id: commentObjectId });
-      if (!comment) {
-          console.error('Comment not found:', commentObjectId);
-          return res.status(404).send('Comment not found');
-      }
+    /*
+    if (!ObjectId.isValid(post_id) || !ObjectId.isValid(comment_id)) {
+        console.error('Invalid post ID or comment ID');
+        return res.status(400).send('Invalid post ID or comment ID');
+    }
+   */
+    //const postObjectId = new ObjectId(post_id);
+    const commentObjectId = new ObjectId(comment_id);
 
-      await db.collection('comments').deleteOne({ _id: commentObjectId });
-      console.log('Comment deleted:', commentObjectId);
+    const comment = await db.collection('comments').findOne({ _id: commentObjectId });
+    if (!comment) {
+      console.error('Comment not found:', commentObjectId);
+      return res.status(404).send('Comment not found');
+    }
 
-      console.log('post_id: '+new ObjectId(post_id));
-      const postUpdateResult = await db.collection('posts').findOneAndUpdate(
-          { _id: new ObjectId(post_id) },
-          { $inc: { comments_num: -1 } },
-          { returnDocument: 'after' }
-      );
+    await db.collection('comments').deleteOne({ _id: commentObjectId });
+    console.log('Comment deleted:', commentObjectId);
 
-      console.log(postUpdateResult.value);
-      if (!postUpdateResult.value) {
-          console.error('Post not found:', new ObjectId(post_id));
-          return res.status(404).send('Post not found');
-      }
+    console.log('post_id: ' + new ObjectId(post_id));
+    const postUpdateResult = await db.collection('posts').findOneAndUpdate(
+      { _id: new ObjectId(post_id) },
+      { $inc: { comments_num: -1 } },
+      { returnDocument: 'after' }
+    );
 
-      console.log('Post updated:', new ObjectId(post_id));
+    console.log(postUpdateResult.value);
+    if (!postUpdateResult.value) {
+      console.error('Post not found:', new ObjectId(post_id));
+      return res.status(404).send('Post not found');
+    }
 
-      try {
-          await addDeleteCommentNotification(post_id, { user_name: req.body.current_user_name }, comment.comment_content);
-          console.log('Delete comment notification added');
-      } catch (error) {
-          console.error('Failed to add delete comment notification, but comment was deleted:', error);
-      }
+    console.log('Post updated:', new ObjectId(post_id));
 
-      res.json({ message: 'Comment deleted successfully', post: postUpdateResult.value });
+    try {
+      await addDeleteCommentNotification(post_id, { user_name: req.body.current_user_name }, comment.comment_content);
+      console.log('Delete comment notification added');
+    } catch (error) {
+      console.error('Failed to add delete comment notification, but comment was deleted:', error);
+    }
+
+    res.json({ message: 'Comment deleted successfully', post: postUpdateResult.value });
   } catch (error) {
-      console.error('Error deleting comment:', error);
-      res.status(500).send('Failed to delete comment');
+    console.error('Error deleting comment:', error);
+    res.status(500).send('Failed to delete comment');
   }
 });
 
@@ -784,42 +787,42 @@ app.post('/toggle-like', async (req, res) => {
   const user_id = user.user_id;
 
   try {
-      const existingLike = await db.collection('likes').findOne({ post_id: new ObjectId(post_id), user_id: new ObjectId(user_id) });
+    const existingLike = await db.collection('likes').findOne({ post_id: new ObjectId(post_id), user_id: new ObjectId(user_id) });
 
-      if (existingLike) {
-          // User already liked the post, remove like
-          await db.collection('likes').deleteOne({ post_id: new ObjectId(post_id), user_id: new ObjectId(user_id) });
-          await db.collection('posts').updateOne({ _id: new ObjectId(post_id) }, { $inc: { likes_num: -1 } });
+    if (existingLike) {
+      // User already liked the post, remove like
+      await db.collection('likes').deleteOne({ post_id: new ObjectId(post_id), user_id: new ObjectId(user_id) });
+      await db.collection('posts').updateOne({ _id: new ObjectId(post_id) }, { $inc: { likes_num: -1 } });
 
-          // Add unlike notification
-          const unlikeNotification = {
-              user_id: existingLike.user_id,
-              notification_content: `${user.user_name} has removed the like from your post`,
-              seen: false,
-              date: new Date()
-          };
-          await db.collection('notifications').insertOne(unlikeNotification);
+      // Add unlike notification
+      const unlikeNotification = {
+        user_id: existingLike.user_id,
+        notification_content: `${user.user_name} has removed the like from your post`,
+        seen: false,
+        date: new Date()
+      };
+      await db.collection('notifications').insertOne(unlikeNotification);
 
-          res.json({ message: 'Like removed successfully' });
-      } else {
-          // User has not liked the post, add like
-          await db.collection('likes').insertOne({ post_id: new ObjectId(post_id), user_id: new ObjectId(user_id) });
-          await db.collection('posts').updateOne({ _id: new ObjectId(post_id) }, { $inc: { likes_num: 1 } });
+      res.json({ message: 'Like removed successfully' });
+    } else {
+      // User has not liked the post, add like
+      await db.collection('likes').insertOne({ post_id: new ObjectId(post_id), user_id: new ObjectId(user_id) });
+      await db.collection('posts').updateOne({ _id: new ObjectId(post_id) }, { $inc: { likes_num: 1 } });
 
-          // Add like notification
-          const likeNotification = {
-              user_id: existingLike.user_id,
-              notification_content: `${user.user_name} has liked your post`,
-              seen: false,
-              date: new Date()
-          };
-          await db.collection('notifications').insertOne(likeNotification);
+      // Add like notification
+      const likeNotification = {
+        user_id: existingLike.user_id,
+        notification_content: `${user.user_name} has liked your post`,
+        seen: false,
+        date: new Date()
+      };
+      await db.collection('notifications').insertOne(likeNotification);
 
-          res.json({ message: 'Like added successfully' });
-      }
+      res.json({ message: 'Like added successfully' });
+    }
   } catch (err) {
-      console.error('Error toggling like:', err);
-      res.status(500).send({ message: 'Failed to toggle like' });
+    console.error('Error toggling like:', err);
+    res.status(500).send({ message: 'Failed to toggle like' });
   }
 });
 
@@ -867,7 +870,7 @@ app.post('/mark-notification-seen', async (req, res) => {
 
 app.post('/update-user', async (req, res) => {
   const { user_id, field, value } = req.body;
-  
+
   try {
     // Create the update object dynamically
     const updateObject = { [field]: value };
@@ -1258,26 +1261,26 @@ const upload = multer({ storage: storage });
 
 // Endpoint to update the user's photo
 app.post('/update-photo', upload.single('photo'), async (req, res) => {
-    const { user_id } = req.body; // Get the user ID from the request body
-    const photoBuffer = req.file.buffer; // Get the photo buffer from multer
+  const { user_id } = req.body; // Get the user ID from the request body
+  const photoBuffer = req.file.buffer; // Get the photo buffer from multer
 
-    try {
-        const updateObject = { photo: photoBuffer }; // Update object with new photo
+  try {
+    const updateObject = { photo: photoBuffer }; // Update object with new photo
 
-        const result = await db.collection('users').updateOne(
-            { _id: new ObjectId(user_id) },
-            { $set: updateObject }
-        );
+    const result = await db.collection('users').updateOne(
+      { _id: new ObjectId(user_id) },
+      { $set: updateObject }
+    );
 
-        if (result.modifiedCount === 1) {
-            res.json({ success: true, message: 'User photo updated successfully', photo: photoBuffer });
-        } else {
-            res.json({ success: false, message: 'User not found' });
-        }
-    } catch (err) {
-        console.error('Error updating user photo:', err);
-        res.status(500).json({ success: false, message: 'Error updating user photo' });
+    if (result.modifiedCount === 1) {
+      res.json({ success: true, message: 'User photo updated successfully', photo: photoBuffer });
+    } else {
+      res.json({ success: false, message: 'User not found' });
     }
+  } catch (err) {
+    console.error('Error updating user photo:', err);
+    res.status(500).json({ success: false, message: 'Error updating user photo' });
+  }
 });
 
 
@@ -1286,14 +1289,14 @@ app.post('/update-photo', upload.single('photo'), async (req, res) => {
 
 // Routes
 app.get('/users', (req, res) => {
-    db.collection('users')
-        .find()
-        .toArray()
-        .then((documents) => {
-            res.status(200).json(documents);
-        })
-        .catch((error) => {
-            console.error('Error fetching users:', error);
-            res.status(500).json({ error: 'Could not fetch the users' });
-        });
+  db.collection('users')
+    .find()
+    .toArray()
+    .then((documents) => {
+      res.status(200).json(documents);
+    })
+    .catch((error) => {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ error: 'Could not fetch the users' });
+    });
 });
