@@ -17,8 +17,8 @@ app.use(cors({
 }));
 app.options('*', cors());
 
-app.use(bodyParser.json({ limit: '50mb' })); // Increase the limit to 10mb or more
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use(bodyParser.json({ limit: '20mb' })); // Increase the limit to 10mb or more
+app.use(bodyParser.urlencoded({ limit: '20mb', extended: true }));
 
 
 app.use(bodyParser.json());

@@ -43,7 +43,7 @@ export const handleRegister = async (formData, setCurrentUser, setSuccess, setEr
       setSuccess('Registration successful! You can now log in.');
       setError('');
       setCurrentUser(response.data.user);
-      navigate('/home');
+      navigate('/login'); 
     } catch (error) {
       console.error('Error from backend:', error.response ? error.response.data : error.message);
       setError('Error registering user');
