@@ -27,7 +27,17 @@ export const handleQuestionChange = (e, formData, setFormData) => {
 };
 
 export const handleNext = (step, setStep, formData, setError) => {
-  if (step === 1 && formData.username && formData.first_name && formData.last_name && formData.gender && formData.email && formData.password && formData.phone_number && formData.education && formData.photo) {
+  if (
+    step === 1 &&
+    formData.username &&
+    formData.first_name &&
+    formData.last_name &&
+    formData.gender &&
+    formData.email &&
+    formData.password &&
+    formData.phone_number &&
+    formData.education
+  ) {
     setStep(step + 1);
   } else if (step === 2) {
     setStep(step + 1);
