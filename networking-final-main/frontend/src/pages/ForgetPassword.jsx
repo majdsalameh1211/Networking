@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; // Import useEffect
+import React, { useState, useEffect } from 'react';
 import axios from '../api/axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,23 +9,24 @@ const ForgotPasswordPage = () => {
   const [error, setError] = useState('');
   const [questions, setQuestions] = useState({});
   const [answers, setAnswers] = useState({ answer1: '', answer2: '' });
-  const [countdown, setCountdown] = useState(10);
+  const [password, setPassword] = useState(''); // State to store the password
+  const [countdown, setCountdown] = useState(10); // Countdown timer for redirecting
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (step === 3) {
+    if (step === 3 && countdown > 0) {
       const timer = setInterval(() => {
         setCountdown(prevCountdown => {
           if (prevCountdown === 1) {
             clearInterval(timer);
-            navigate('/login');
+            navigate('/login'); // Redirect to login page after countdown.
           }
           return prevCountdown - 1;
         });
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [step, navigate]);
+  }, [step, countdown, navigate]);
 
   const handleChange = (e) => {
     setEmail(e.target.value);
@@ -55,9 +56,9 @@ const ForgotPasswordPage = () => {
     try {
       const response = await axios.post('/verify-answers', { email, answers });
       if (response.data.correct) {
-        alert(`Your password is: ${response.data.password}`);
-        setMessage('Password has been sent to your email.');
-        setStep(3);
+        setPassword(response.data.password); // Store the password
+        setMessage('Password has been retrieved.');
+        setStep(3); // Proceed to the final step
       } else {
         setError('Incorrect answers. Please try again.');
       }
@@ -127,8 +128,13 @@ const ForgotPasswordPage = () => {
         )}
         {step === 3 && (
           <>
-            <h1 className="text-2xl font-bold mb-6">Password Sent</h1>
-            <p>Your password has been sent to your email. Redirecting to login page in {countdown} seconds...</p>
+            <h1 className="text-2xl font-bold mb-6">Password Retrieved</h1>
+            <p className="text-green-500">
+              Your password is: <strong>{password}</strong>
+            </p>
+            <p className="text-gray-700">
+              Redirecting to login page in {countdown} seconds...
+            </p>
           </>
         )}
       </div>
