@@ -43,30 +43,37 @@ Backend: [Vercel & MongoDB Atlas]
 
 🚀 Installation & Setup
 1️⃣ Clone the Repository
+
 git clone https://github.com/majdsalameh1211/web_final_M.M..git
 cd web_final_M.M.
 
 2️⃣ Install Dependencies
 📌 For Frontend
+
 cd frontend
 npm install
 
 
 📌 For Backend
+
 cd backend
 npm install
 
 3️⃣ Environment Variables
 Create a .env file inside the backend folder and add:
+
 MONGO_URI=your-mongodb-connection-string
 JWT_SECRET=your-secret-key
 
 4️⃣ Run the Application
+
 📌 Start the Backend
+
 cd backend
 npm start
 
 📌 Start the Frontend
+
 cd frontend
 npm run dev
 
