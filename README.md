@@ -85,15 +85,27 @@ npm run dev
 
 🎯 API Endpoints
 Authentication
+
 POST /register - Create a new user account.
+
 POST /login - Authenticate users.
+
 Posts
+
 POST /add-post - Create a new post.
+
 GET /fetch-posts - Retrieve posts from friends.
+
 Likes & Comments
+
 POST /add-like - Like a post.
+
 POST /remove-like - Unlike a post.
+
 POST /add-comment - Add a comment.
+
 Messaging
+
 POST /send-message - Send a direct message.
+
 GET /fetch-messages - Retrieve chat messages.
